@@ -46,85 +46,35 @@ JOIN ach053.MITARBEITER USING (mid)
 JOIN ach053.PROJEKT USING (prjid)
 JOIN ach053.ARBEITSPAKETE USING (prjid, apid)
 WHERE anzahlstd >= 15
-ORDER BY anzahlstd DESC;
+ORDER BY mname, anzahlstd DESC;
 
 /* OUTPUT:
 MNAME                PRJNAME                   APBEZEICHNUNG              ANZAHLSTD
 -------------------- ------------------------- ------------------------- ----------
-Krüger               Optimierung Einkauf       EK Implementierung                50
-Krüger               Optimierung Einkauf       VK Implementierung                50
-Krüger               Optimierung Einkauf       Design                            50
-Krüger               Optimierung Einkauf       ReWe Implementierung              50
-Krüger               Optimierung Einkauf       geheim 3                          50
-Schulze              Strategieentwicklung      Konzept                           40
-Schulze              Strategieentwicklung      VK Konzept                        40
-Schulze              Strategieentwicklung      EK Konzept                        40
-Schulze              Strategieentwicklung      ReWe Konzept                      40
-Schulze              Strategieentwicklung      geheim 2                          40
-Behrendt             ERP Roll Out              ReWe Test                         25
-
-MNAME                PRJNAME                   APBEZEICHNUNG              ANZAHLSTD
--------------------- ------------------------- ------------------------- ----------
 Behrendt             ERP Roll Out              Implementierung                   25
-Krause               Optimierung Verkauf       VK Konzept                        20
-Walter               Optimierung Verkauf       VK Konzept                        20
-Walter               ERP Roll Out              EK Implementierung                20
 Behrendt             Optimierung Einkauf       EK Implementierung                20
-Krüger               Optimierung ReWe          EK Implementierung                20
-Krause               Optimierung Verkauf       EK Konzept                        20
-Walter               Optimierung Verkauf       EK Konzept                        20
-Horst                ERP Roll Out              Implementierung                   20
-Walter               ERP Roll Out              Design                            20
-Behrendt             Optimierung Einkauf       Design                            20
-
-MNAME                PRJNAME                   APBEZEICHNUNG              ANZAHLSTD
--------------------- ------------------------- ------------------------- ----------
-Krüger               Optimierung ReWe          Design                            20
-Krause               Optimierung Verkauf       Konzept                           20
-Walter               Optimierung Verkauf       Konzept                           20
-Horst                ERP Roll Out              ReWe Test                         20
-Walter               ERP Roll Out              ReWe Implementierung              20
-Behrendt             Optimierung Einkauf       ReWe Implementierung              20
-Krüger               Optimierung ReWe          ReWe Implementierung              20
-Krause               Optimierung Verkauf       ReWe Konzept                      20
-Walter               Optimierung Verkauf       ReWe Konzept                      20
-Walter               ERP Roll Out              geheim 3                          20
-Behrendt             Optimierung Einkauf       geheim 3                          20
-
-MNAME                PRJNAME                   APBEZEICHNUNG              ANZAHLSTD
--------------------- ------------------------- ------------------------- ----------
-Krüger               Optimierung ReWe          geheim 3                          20
-Krause               Optimierung Verkauf       geheim 2                          20
-Krüger               Optimierung ReWe          VK Implementierung                20
-Behrendt             Optimierung Einkauf       VK Implementierung                20
-Walter               ERP Roll Out              VK Implementierung                20
-Walter               Optimierung Verkauf       geheim 2                          20
-Hansen               Optimierung ReWe          EK Konzept                        15
-Krause               Strategieentwicklung      VK Planung                        15
 Hansen               Optimierung ReWe          ReWe Konzept                      15
-Krause               Strategieentwicklung      ReWe Planung                      15
-Hansen               Optimierung ReWe          VK Konzept                        15
-
-MNAME                PRJNAME                   APBEZEICHNUNG              ANZAHLSTD
--------------------- ------------------------- ------------------------- ----------
+Horst                ERP Roll Out              Implementierung                   20
+Krause               Optimierung Verkauf       VK Konzept                        20
 Krause               Strategieentwicklung      geheim 1                          15
-Krause               Strategieentwicklung      EK Planung                        15
-Krause               Strategieentwicklung      Planung                           15
-Hansen               Optimierung ReWe          Konzept                           15
-Hansen               Optimierung ReWe          geheim 2                          15
+Krüger               Optimierung Einkauf       EK Implementierung                50
+Krüger               Optimierung ReWe          ReWe Implementierung              20
+Schulze              Strategieentwicklung      geheim 2                          40
+Walter               Optimierung Verkauf       VK Konzept                        20
+Walter               ERP Roll Out              Design                            20
 
-49 Zeilen gewählt. 
+11 Zeilen gewählt. 
  */
  
 -- 5. Aufgabe
-SELECT COUNT(*) FROM ach053.ARBEITET_AN
+SELECT COUNT(DISTINCT mid) AS "Anzahl Mitarbeiter Opt Einkauf" FROM ach053.ARBEITET_AN
 JOIN ach053.PROJEKT USING (prjid)
 WHERE prjname = 'Optimierung Einkauf';
 
 /* OUTPUT:
-  COUNT(*)
-----------
-         5 
+Anzahl Mitarbeiter Opt Einkauf
+------------------------------
+                             4
  */
 
 -- 6. Aufgabe
@@ -151,7 +101,7 @@ Behrendt
 */
 
 -- 7. Aufgabe
-SELECT mname FROM ach053.ARBEITET_AN
+SELECT DISTINCT mname FROM ach053.ARBEITET_AN
 JOIN ach053.MITARBEITER USING (mid)
 JOIN ach053.PROJEKT USING (prjid)
 WHERE NOT prjname = 'Optimierung Einkauf';
