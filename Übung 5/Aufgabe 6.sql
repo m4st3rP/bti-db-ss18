@@ -213,7 +213,7 @@ VALUES (3456, 123, '05.12.2020');
 
 -- Restore prices
 UPDATE PRODUKT
-SET PREIS = PREIS / 31.18625; -- Calculate prices back into Euro and also 20% less
+SET PREIS = PREIS / 44.9082; -- Calculate prices back into Euro and also 20% less
 
 ALTER TABLE PRODUKT 
 DROP CONSTRAINT VALIDER_PREIS;
