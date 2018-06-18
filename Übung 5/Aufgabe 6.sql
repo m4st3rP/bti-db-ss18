@@ -210,3 +210,13 @@ VALUES (2345, 'Finn-Frederik Jannsen', 667788);
 
 INSERT INTO Kreditkarte
 VALUES (3456, 123, '05.12.2020');
+
+-- Restore prices
+UPDATE PRODUKT
+SET PREIS = PREIS / 44.9082; -- Calculate prices back into Euro and also 20% less
+
+ALTER TABLE PRODUKT 
+DROP CONSTRAINT VALIDER_PREIS;
+
+ALTER TABLE PRODUKT
+ADD CONSTRAINT VALIDER_PREIS CHECK (Preis >= 0.00 and Preis < 1000.00); -- Calculate limit back into euro

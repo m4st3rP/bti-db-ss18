@@ -101,10 +101,12 @@ Behrendt
 */
 
 -- 7. Aufgabe
-SELECT DISTINCT mname FROM ach053.ARBEITET_AN
-JOIN ach053.MITARBEITER USING (mid)
-JOIN ach053.PROJEKT USING (prjid)
-WHERE NOT prjname = 'Optimierung Einkauf';
+SELECT DISTINCT mname FROM ach053.MITARBEITER
+WHERE ach053.MITARBEITER.mid NOT IN 
+    (SELECT ach053.ARBEITET_AN.mid 
+     FROM ach053.ARBEITET_AN
+     JOIN ach053.PROJEKT USING (prjid)
+     WHERE prjname = 'Optimierung Einkauf');
 
 /* OUTPUT:
 MNAME               
@@ -113,12 +115,11 @@ Schulze
 Krause
 Schmidt
 Hansen
+Klaus
 Walter
-Krüger
 Horst
-Behrendt
 
-8 Zeilen gewählt. 
+7 Zeilen gewählt. 
  */
  
 -- 8. Aufgabe
