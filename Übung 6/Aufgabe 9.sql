@@ -1,9 +1,6 @@
 -- 1
 SELECT prjid, prjname
 FROM ach053.PROJEKT
-INTERSECT
-SELECT prjid, prjname
-FROM ach053.PROJEKT
 JOIN ach053.ARBEITET_AN USING (prjid)
 JOIN ach053.MITARBEITER USING (mid)
 WHERE mname = 'Horst'
@@ -23,15 +20,16 @@ SELECT mid, mname, prjname, SUM(anzahlstd)
 FROM ach053.MITARBEITER
 JOIN ach053.ARBEITET_AN USING (mid)
 JOIN ach053.PROJEKT USING (prjid)
-JOIN ach053.ARBEITSPAKETE USING (apid) -- or maybe prjid?
 WHERE prjname = 'ERP Roll Out'
 GROUP BY (mid, mname, prjname);
 
 /* Output:
-1007    Krüger       25
-1006    Behrendt    100
-1005    Walter      100
-1008    Horst        90
+       MID MNAME                PRJNAME                   SUM(ANZAHLSTD)
+---------- -------------------- ------------------------- --------------
+      1005 Walter               ERP Roll Out                          20
+      1006 Behrendt             ERP Roll Out                          35
+      1007 Krüger               ERP Roll Out                           5
+      1008 Horst                ERP Roll Out                          30
 */
 
 -- 3
@@ -82,30 +80,61 @@ HAVING SUM(anzahlstd) > 90;
 */
 
 -- 5
-SELECT prjname, COUNT(mid) as AnzahlMitarbeiter
-FROM ach053.PROJEKT
-JOIN ach053.ARBEITET_AN USING (prjid)
-JOIN ach053.MITARBEITER USING (mid)
-GROUP BY prjname
-ORDER BY AnzahlMitarbeiter DESC
-FETCH FIRST ROW ONLY;
+SELECT prjname, COUNT(DISTINCT mid) as Anzahl
+    FROM ach053.PROJEKT
+    JOIN ach053.ARBEITET_AN USING (prjid)
+    GROUP BY prjname
+HAVING COUNT(DISTINCT mid)  >= (SELECT  max(COUNT(DISTINCT mid))
+        FROM ach053.ARBEITET_AN
+        GROUP BY prjid);
 
 /* Output:
-Optimierung Verkauf    8
+PRJNAME                       ANZAHL
+------------------------- ----------
+Optimierung Verkauf                6
+Strategieentwicklung               6
 */
 
--- 6 unfinished
+-- 6 *
 SELECT prjname, mname
+FROM ach053.ARBEITET_AN
+JOIN ach053.MITARBEITER USING (mid)
+JOIN ach053.PROJEKT USING (prjid)
+GROUP BY prjid, mid, prjname, mname
+HAVING (SUM(anzahlstd)/35*100) >= (SELECT SUM(anzahlstd) FROM ach053.ARBEITET_AN GROUP BY prjname, mname);
+     
+
+/* Output:
+
+PRJNAME                   MNAME               
+------------------------- --------------------
+Strategieentwicklung      Krüger              
+Optimierung Einkauf       Meier               
+Strategieentwicklung      Horst               
+Strategieentwicklung      Schulze             
+Strategieentwicklung      Walter              
+Optimierung Einkauf       Behrendt            
+Optimierung Einkauf       Müller              
+Optimierung Einkauf       Krüger              
+Strategieentwicklung      Krause              
+Strategieentwicklung      Behrendt            
+
+10 Zeilen gewählt. 
+*/
+
+SELECT DISTINCT prjname, ach053.MITARBEITER.mname
 FROM ach053.PROJEKT
 JOIN ach053.ARBEITET_AN USING (prjid)
 JOIN ach053.MITARBEITER USING (mid)
-JOIN(SELECT prjname, SUM(anzahlstd) as GesStundenPrj
+JOIN (SELECT mid, prjid, SUM(anzahlstd) as Stunden
+    FROM ach053.MITARBEITER
+    JOIN ach053.ARBEITET_AN USING (mid)
+    JOIN ach053.PROJEKT USING (prjid)
+    GROUP BY mid, prjid)
+USING (prjid)
+JOIN(SELECT prjid, SUM(anzahlstd) as GesStundenPrj
      FROM ach053.PROJEKT
      JOIN ach053.ARBEITET_AN USING (prjid)
-     GROUP BY prjname)
-USING (prjname)
-WHERE anzahlstd / GesStundenPrj > 0.35;
-/* Output:
-Optimierung Einkauf     Krüger
-Strategieentwicklung    Schulze
-*/
+     GROUP BY prjid)
+USING (prjid)
+WHERE Stunden / GesStundenPrj > 0.35;
