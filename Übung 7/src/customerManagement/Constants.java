@@ -12,8 +12,8 @@ public abstract class Constants {
 	public static final String FIELD_HOUSENR = "Hausnummer eingeben";
 	public static final String FIELD_TOWN = "Wohnort eingeben";
 	public static final String COLUMN_KDNR = "Kundennummer";
-	public static final String COLUMN_NAME = "Namen";
-	public static final String COLUMN_STREET = "Straﬂennamen";
+	public static final String COLUMN_NAME = "Name";
+	public static final String COLUMN_STREET = "Straﬂenname";
 	public static final String COLUMN_HOUSENR = "Hausnummer";
 	public static final String COLUMN_TOWN = "Wohnort";
 	public static final int WIDTH = 800;
