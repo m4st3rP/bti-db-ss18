@@ -4,9 +4,12 @@ import customerManagement.Constants;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -22,8 +25,9 @@ import java.text.DecimalFormat;
 import java.text.ParsePosition;
 
 public class Display extends Application {
-	Connection con = null;
-	TableView<Kunde> customers;
+	private Connection con = null;
+	private TableView<Kunde> customers;
+	private DBMSManager dbmsm;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -31,6 +35,8 @@ public class Display extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+	    dbmsm = new DBMSManager();
+	    
 		stage.setTitle(Constants.TITLE);
 		stage.setWidth(Constants.WIDTH);
 		stage.setHeight(Constants.HEIGHT);
@@ -73,8 +79,8 @@ public class Display extends Application {
 		townColumn.setCellValueFactory(new PropertyValueFactory<>("Town"));
 		
 		customers.setMinWidth(500);
-		ObservableList<Kunde> asd = getCustomers();
-		customers.setItems(asd);
+		//ObservableList<Kunde> asd = getCustomers();
+		//customers.setItems(asd);
 		customers.getColumns().addAll(kdnrColumn, nameColumn, streetColumn, housenrColumn, townColumn);
 		//	Table end
 		
@@ -96,6 +102,9 @@ public class Display extends Application {
 		TextField streetField = new TextField();
 		TextField housenrField = new TextField();
 		TextField townField = new TextField();
+		TextField accountNameField = new TextField();
+		PasswordField accountPasswordField = new PasswordField();
+		
 
 		kdnrField.setPrefColumnCount(Constants.MAX_CHARS);
 		nameField.setPrefColumnCount(Constants.MAX_CHARS);
@@ -165,13 +174,38 @@ public class Display extends Application {
 		// Load Window
 		stage.setScene(scene);
 		stage.show();
+		
+		connectButton.setOnAction(new EventHandler<ActionEvent>() {   
+            @Override
+            public void handle(ActionEvent arg0) {
+                dbmsm.connectToDatabase(accountNameField.getText(), accountPasswordField.getText());
+            }
+        });
+		
+		addCustomerButton.setOnAction(new EventHandler<ActionEvent>() {   
+            @Override
+            public void handle(ActionEvent arg0) {
+                dbmsm.addCustomer(Integer.parseInt(kdnrField.getText()), nameField.getText(), streetField.getText(), Integer.parseInt(housenrField.getText()), townField.getText());
+            }
+        });
+		
+		listCustomersButton.setOnAction(new EventHandler<ActionEvent>() {   
+            @Override
+            public void handle(ActionEvent arg0) {
+                dbmsm.getAllCustomers(customersThatPaidCheckbox.isSelected());
+            }
+        });
+		
+		disconnectButton.setOnAction(new EventHandler<ActionEvent>() {   
+            @Override
+            public void handle(ActionEvent arg0) {
+                dbmsm.disconnectFromDatabase();
+            }
+        });
 	}
 	
 	private ObservableList<Kunde> getCustomers() {
-		ObservableList<Kunde> list = FXCollections.observableArrayList();
-		list.add(new Kunde(1, "Horst Seehofer", "Weimarer Str.", 88, "Berlin"));
-		list.add(new Kunde(1, "Ernst Seehofer", "Weimarer Str.", 87, "Berlin"));
-		return list;
+		return dbmsm.getAllCustomers(false);
 	}
 	
 	private static TextFormatter<String> forceNumbers() {
