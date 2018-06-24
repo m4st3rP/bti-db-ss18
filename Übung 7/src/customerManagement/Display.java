@@ -7,6 +7,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
@@ -15,8 +17,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -28,31 +36,36 @@ public class Display extends Application {
 	private Connection con = null;
 	private TableView<Kunde> customers;
 	private DBMSManager dbmsm;
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	@Override
 	public void start(Stage stage) throws Exception {
-	    dbmsm = new DBMSManager();
-	    
+		Background defBackground;
+		dbmsm = new DBMSManager();
+
 		stage.setTitle(Constants.TITLE);
 		stage.setWidth(Constants.WIDTH);
 		stage.setHeight(Constants.HEIGHT);
 		stage.setResizable(false);
-		
+
 		Pane mainPane = new GridPane();
 		Pane buttonsPane = new GridPane();
 		Pane listCustomersPane = new GridPane();
-		
-		//	Insets for general use
+
+		// Insets for general use
 		Insets bigInset = new Insets(Constants.INSET_BIG);
 		Insets smallInset = new Insets(Constants.INSET_SMALL);
-		
+
 		CheckBox customersThatPaidCheckbox = new CheckBox();
 		
-		//	Table start
+		//	Effects for connection status
+		Effect effectConnected = new DropShadow(10, Color.GREEN);
+		Effect effectDisconnected = new DropShadow(10, Color.RED);
+
+		// Table start
 		customers = new TableView<Kunde>();
 		TableColumn<Kunde, Integer> kdnrColumn = new TableColumn<>(Constants.COLUMN_KDNR);
 		TableColumn<Kunde, String> nameColumn = new TableColumn<>(Constants.COLUMN_NAME);
@@ -65,7 +78,7 @@ public class Display extends Application {
 		streetColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
 		housenrColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
 		townColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
-		
+
 		kdnrColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
 		nameColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
 		streetColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
@@ -77,14 +90,12 @@ public class Display extends Application {
 		streetColumn.setCellValueFactory(new PropertyValueFactory<>("Street"));
 		housenrColumn.setCellValueFactory(new PropertyValueFactory<>("HouseNr"));
 		townColumn.setCellValueFactory(new PropertyValueFactory<>("Town"));
-		
+
 		customers.setMinWidth(500);
-		//ObservableList<Kunde> asd = getCustomers();
-		//customers.setItems(asd);
 		customers.getColumns().addAll(kdnrColumn, nameColumn, streetColumn, housenrColumn, townColumn);
-		//	Table end
-		
-		//	Buttons start
+		// Table end
+
+		// Buttons start
 		Button connectButton = new Button(Constants.BUTTON_CONNECT);
 		Button addCustomerButton = new Button(Constants.BUTTON_ADD);
 		Button listCustomersButton = new Button(Constants.BUTTON_LIST);
@@ -94,9 +105,11 @@ public class Display extends Application {
 		addCustomerButton.setMinWidth(Constants.BUTTONS_MIN_WIDTH);
 		listCustomersButton.setMinWidth(Constants.BUTTONS_MIN_WIDTH);
 		disconnectButton.setMinWidth(Constants.BUTTONS_MIN_WIDTH);
-		//	Buttons end
+		
+		connectButton.setEffect(effectDisconnected);
+		// Buttons end
 
-		//	Textfields start
+		// Textfields start
 		TextField kdnrField = new TextField();
 		TextField nameField = new TextField();
 		TextField streetField = new TextField();
@@ -104,25 +117,28 @@ public class Display extends Application {
 		TextField townField = new TextField();
 		TextField accountNameField = new TextField();
 		PasswordField accountPasswordField = new PasswordField();
-		
 
 		kdnrField.setPrefColumnCount(Constants.MAX_CHARS);
 		nameField.setPrefColumnCount(Constants.MAX_CHARS);
 		streetField.setPrefColumnCount(Constants.MAX_CHARS);
 		housenrField.setPrefColumnCount(Constants.MAX_CHARS);
 		townField.setPrefColumnCount(Constants.MAX_CHARS);
-		
+		accountNameField.setPrefColumnCount(Constants.MAX_CHARS);
+		accountPasswordField.setPrefColumnCount(Constants.MAX_CHARS);
+
 		kdnrField.setPromptText(Constants.FIELD_KDNR);
 		nameField.setPromptText(Constants.FIELD_NAME);
 		streetField.setPromptText(Constants.FIELD_STREET);
 		housenrField.setPromptText(Constants.FIELD_HOUSENR);
 		townField.setPromptText(Constants.FIELD_TOWN);
+		accountNameField.setPromptText(Constants.FIELD_ACCNAME);
+		accountPasswordField.setPromptText(Constants.FIELD_ACCPWD);
 
 		kdnrField.setTextFormatter(forceNumbers());
 		housenrField.setTextFormatter(forceNumbers());
-		//	Textfields end
-		
-		//	Miscellaneous settings start
+		// Textfields end
+
+		// Miscellaneous settings start
 		GridPane.setHalignment(connectButton, HPos.CENTER);
 		GridPane.setHalignment(addCustomerButton, HPos.CENTER);
 		GridPane.setHalignment(listCustomersButton, HPos.CENTER);
@@ -133,6 +149,8 @@ public class Display extends Application {
 		GridPane.setHalignment(streetField, HPos.CENTER);
 		GridPane.setHalignment(housenrField, HPos.CENTER);
 		GridPane.setHalignment(townField, HPos.CENTER);
+		GridPane.setHalignment(accountNameField, HPos.CENTER);
+		GridPane.setHalignment(accountPasswordField, HPos.CENTER);
 
 		GridPane.setMargin(connectButton, bigInset);
 		GridPane.setMargin(addCustomerButton, bigInset);
@@ -145,12 +163,16 @@ public class Display extends Application {
 		GridPane.setMargin(streetField, smallInset);
 		GridPane.setMargin(housenrField, smallInset);
 		GridPane.setMargin(townField, smallInset);
-		
+		GridPane.setMargin(accountNameField, smallInset);
+		GridPane.setMargin(accountPasswordField, smallInset);
+
 		GridPane.setConstraints(buttonsPane, 0, 0);
 		GridPane.setConstraints(connectButton, 0, Constants.ROW_CONNECT);
-		GridPane.setConstraints(addCustomerButton, 0, Constants.ROW_ADD);
 		GridPane.setConstraints(disconnectButton, 0, Constants.ROW_DISCONNECT);
+		GridPane.setConstraints(accountNameField, 0, Constants.ROW_ACCNAME);
+		GridPane.setConstraints(accountPasswordField, 0, Constants.ROW_ACCPWD);
 		GridPane.setConstraints(listCustomersPane, 0, Constants.ROW_LIST);
+		GridPane.setConstraints(addCustomerButton, 0, Constants.ROW_ADD);
 		GridPane.setConstraints(kdnrField, 0, Constants.ROW_KDNR);
 		GridPane.setConstraints(nameField, 0, Constants.ROW_NAME);
 		GridPane.setConstraints(streetField, 0, Constants.ROW_STREET);
@@ -159,75 +181,89 @@ public class Display extends Application {
 		GridPane.setConstraints(listCustomersButton, 0, 0);
 		GridPane.setConstraints(customersThatPaidCheckbox, 1, 0);
 		GridPane.setConstraints(customers, 1, 0);
-		
+
 		buttonsPane.setMaxWidth(Constants.BUTTONS_MAX_WIDTH);
-		//	Miscellaneous settings end
-		
-		listCustomersPane.getChildren().addAll(
-				listCustomersButton, customersThatPaidCheckbox);
-		buttonsPane.getChildren().addAll(
-				connectButton, addCustomerButton, listCustomersPane, disconnectButton
-				, kdnrField, nameField, streetField, housenrField, townField);
+		// Miscellaneous settings end
+
+		listCustomersPane.getChildren().addAll(listCustomersButton, customersThatPaidCheckbox);
+		buttonsPane.getChildren().addAll(connectButton, addCustomerButton, listCustomersPane, disconnectButton,
+				kdnrField, nameField, streetField, housenrField, townField, accountNameField, accountPasswordField);
 		mainPane.getChildren().addAll(buttonsPane, customers);
 		Scene scene = new Scene(mainPane, Constants.WIDTH, Constants.HEIGHT);
-		
+
 		// Load Window
 		stage.setScene(scene);
 		stage.show();
-		
-		connectButton.setOnAction(new EventHandler<ActionEvent>() {   
-            @Override
-            public void handle(ActionEvent arg0) {
-                dbmsm.connectToDatabase(accountNameField.getText(), accountPasswordField.getText());
-            }
-        });
-		
-		addCustomerButton.setOnAction(new EventHandler<ActionEvent>() {   
-            @Override
-            public void handle(ActionEvent arg0) {
-                dbmsm.addCustomer(Integer.parseInt(kdnrField.getText()), nameField.getText(), streetField.getText(), Integer.parseInt(housenrField.getText()), townField.getText());
-            }
-        });
-		
-		listCustomersButton.setOnAction(new EventHandler<ActionEvent>() {   
-            @Override
-            public void handle(ActionEvent arg0) {
-                dbmsm.getAllCustomers(customersThatPaidCheckbox.isSelected());
-            }
-        });
-		
-		disconnectButton.setOnAction(new EventHandler<ActionEvent>() {   
-            @Override
-            public void handle(ActionEvent arg0) {
-                dbmsm.disconnectFromDatabase();
-            }
-        });
+
+		connectButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				if (dbmsm.connectToDatabase(accountNameField.getText(), accountPasswordField.getText())) {
+					connectButton.setEffect(effectConnected);
+				} else {
+					Alert alert = new Alert(AlertType.WARNING);
+					alert.setTitle(Constants.CONISSUE_TITLE);
+					alert.setHeaderText(Constants.CONISSUE_HEADER);
+					alert.setContentText(Constants.CONISSUE_CONTENT);
+					alert.showAndWait();
+				}
+			}
+		});
+
+		addCustomerButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					dbmsm.addCustomer(Integer.parseInt(kdnrField.getText()), nameField.getText(), streetField.getText(),
+										Integer.parseInt(housenrField.getText()), townField.getText());
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					Alert alert = new Alert(AlertType.WARNING);
+					alert.setTitle(Constants.ADDISSUE_TITLE);
+					alert.setHeaderText(Constants.ADDISSUE_HEADER);
+					alert.setContentText(Constants.ADDISSUE_CONTENT);
+					alert.showAndWait();
+				}
+			}
+		});
+
+		listCustomersButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				customers.setItems(dbmsm.getAllCustomers(customersThatPaidCheckbox.isSelected()));
+			}
+		});
+
+		disconnectButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				if (dbmsm.disconnectFromDatabase()) {
+					connectButton.setEffect(effectDisconnected);
+				}
+			}
+		});
 	}
-	
+
 	private ObservableList<Kunde> getCustomers() {
 		return dbmsm.getAllCustomers(false);
 	}
-	
+
 	private static TextFormatter<String> forceNumbers() {
-		DecimalFormat format = new DecimalFormat( "#.0" );
-		TextFormatter<String> formatter = new TextFormatter<>( c ->
-		{
-		    if ( c.getControlNewText().isEmpty() )
-		    {
-		        return c;
-		    }
-	
-		    ParsePosition parsePosition = new ParsePosition( 0 );
-		    Object object = format.parse( c.getControlNewText(), parsePosition );
-	
-		    if ( object == null || parsePosition.getIndex() < c.getControlNewText().length() )
-		    {
-		        return null;
-		    }
-		    else
-		    {
-		        return c;
-		    }
+		DecimalFormat format = new DecimalFormat("#.0");
+		TextFormatter<String> formatter = new TextFormatter<>(c -> {
+			if (c.getControlNewText().isEmpty()) {
+				return c;
+			}
+
+			ParsePosition parsePosition = new ParsePosition(0);
+			Object object = format.parse(c.getControlNewText(), parsePosition);
+
+			if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+				return null;
+			} else {
+				return c;
+			}
 		});
 		return formatter;
 	}
