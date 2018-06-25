@@ -1,9 +1,15 @@
 package customerManagement;
 
+/**
+ * @author Finn-Frederik Jannsen, Philipp Schwarz
+ * @version 1.0
+ *
+ *	Self-explanatory Application-Constants for basic DBP Database management
+ */
 public abstract class Constants {
 	public static final String TITLE = "DBP Kundenmanagement";
 	public static final String BUTTON_CONNECT = "Verbinden";
-	public static final String BUTTON_ADD = "Kunden Hinzufügen";
+	public static final String BUTTON_ADD = "Kunden Hinzufuegen";
 	public static final String BUTTON_LIST = "Kunden anzeigen";
 	public static final String BUTTON_DISCONNECT = "Trennen";
 	public static final String FIELD_KDNR = "Kundennummer eingeben";
@@ -20,12 +26,12 @@ public abstract class Constants {
 	public static final String COLUMN_TOWN = "Wohnort";
 	public static final String CONISSUE_TITLE = "Verbindungsfehler";
 	public static final String CONISSUE_HEADER = "Verbindung konnte nicht hergestellt werden";
-	public static final String CONISSUE_CONTENT = "Passwort/Nutzername falsch oder keine Verbindung zum Server möglich";
-	public static final String ADDISSUE_TITLE = "Fehler beim Hinzufügen";
-	public static final String ADDISSUE_HEADER = "Kunde konnte nicht eingefügt werden";
-	public static final String ADDISSUE_CONTENT = "Bitte geben Sie gültige Daten an";
+	public static final String CONISSUE_CONTENT = "Passwort/Nutzername falsch oder keine Verbindung zum Server moeglich";
+	public static final String ADDISSUE_TITLE = "Fehler beim Hinzufuegen";
+	public static final String ADDISSUE_HEADER = "Kunde konnte nicht eingefuegt werden";
+	public static final String ADDISSUE_CONTENT = "Bitte geben Sie gueltige Daten an";
 	public static final int WIDTH = 800;
-	public static final int HEIGHT = 500;
+	public static final int HEIGHT = 470;
 	public static final int INSET_SMALL = 5;
 	public static final int INSET_BIG = 10;
 	public static final int ROW_CONNECT = 0;

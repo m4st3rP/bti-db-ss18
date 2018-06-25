@@ -1,5 +1,11 @@
 package customerManagement;
 
+/**
+ * @author Finn-Frederik Jannsen, Philipp Schwarz
+ * @version 1.0
+ *
+ *	Customer-Class representing one row from the Customer-Table (Database)
+ */
 public class Kunde {
 	private int KdNr;
 	private String Name;

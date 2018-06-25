@@ -32,8 +32,14 @@ import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.ParsePosition;
 
+/**
+ * @author Finn-Frederik Jannsen, Philipp Schwarz
+ * @version 1.0
+ *
+ *	GUI-Application for basic DBP Database management
+ */
+
 public class Display extends Application {
-	private Connection con = null;
 	private TableView<Kunde> customers;
 	private DBMSManager dbmsm;
 
@@ -43,14 +49,15 @@ public class Display extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Background defBackground;
 		dbmsm = new DBMSManager();
 
+		//	Prepare Window
 		stage.setTitle(Constants.TITLE);
 		stage.setWidth(Constants.WIDTH);
 		stage.setHeight(Constants.HEIGHT);
 		stage.setResizable(false);
 
+		//	3 Grids needed for organizing layout
 		Pane mainPane = new GridPane();
 		Pane buttonsPane = new GridPane();
 		Pane listCustomersPane = new GridPane();
@@ -59,6 +66,7 @@ public class Display extends Application {
 		Insets bigInset = new Insets(Constants.INSET_BIG);
 		Insets smallInset = new Insets(Constants.INSET_SMALL);
 
+		//	Checkbox to only show Customers who paid
 		CheckBox customersThatPaidCheckbox = new CheckBox();
 		
 		//	Effects for connection status
@@ -72,12 +80,13 @@ public class Display extends Application {
 		TableColumn<Kunde, String> streetColumn = new TableColumn<>(Constants.COLUMN_STREET);
 		TableColumn<Kunde, Integer> housenrColumn = new TableColumn<>(Constants.COLUMN_HOUSENR);
 		TableColumn<Kunde, String> townColumn = new TableColumn<>(Constants.COLUMN_TOWN);
-
-		kdnrColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
-		nameColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
-		streetColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
-		housenrColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
-		townColumn.setMinWidth(Constants.COLUMNS_MIN_WIDTH);
+		
+		//	Bind minimum width to table width divided by the number of columns
+		kdnrColumn.minWidthProperty().bind(customers.widthProperty().divide(5));
+		nameColumn.minWidthProperty().bind(customers.widthProperty().divide(5));
+		streetColumn.minWidthProperty().bind(customers.widthProperty().divide(5));
+		housenrColumn.minWidthProperty().bind(customers.widthProperty().divide(5));
+		townColumn.minWidthProperty().bind(customers.widthProperty().divide(5));
 
 		kdnrColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
 		nameColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
@@ -85,6 +94,7 @@ public class Display extends Application {
 		housenrColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
 		townColumn.setMaxWidth(Constants.COLUMNS_MAX_WIDTH);
 
+		//	create Value Factories to work with Customer-Class variables
 		kdnrColumn.setCellValueFactory(new PropertyValueFactory<>("KdNr"));
 		nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
 		streetColumn.setCellValueFactory(new PropertyValueFactory<>("Street"));
@@ -106,6 +116,7 @@ public class Display extends Application {
 		listCustomersButton.setMinWidth(Constants.BUTTONS_MIN_WIDTH);
 		disconnectButton.setMinWidth(Constants.BUTTONS_MIN_WIDTH);
 		
+		//	Starting disconnected, thus show it
 		connectButton.setEffect(effectDisconnected);
 		// Buttons end
 
@@ -134,6 +145,7 @@ public class Display extends Application {
 		accountNameField.setPromptText(Constants.FIELD_ACCNAME);
 		accountPasswordField.setPromptText(Constants.FIELD_ACCPWD);
 
+		//	set text formatter to one that forces numbers-only input on number fields
 		kdnrField.setTextFormatter(forceNumbers());
 		housenrField.setTextFormatter(forceNumbers());
 		// Textfields end
@@ -185,6 +197,7 @@ public class Display extends Application {
 		buttonsPane.setMaxWidth(Constants.BUTTONS_MAX_WIDTH);
 		// Miscellaneous settings end
 
+		//	Create GUI hierarchy
 		listCustomersPane.getChildren().addAll(listCustomersButton, customersThatPaidCheckbox);
 		buttonsPane.getChildren().addAll(connectButton, addCustomerButton, listCustomersPane, disconnectButton,
 				kdnrField, nameField, streetField, housenrField, townField, accountNameField, accountPasswordField);
@@ -194,11 +207,13 @@ public class Display extends Application {
 		// Load Window
 		stage.setScene(scene);
 		stage.show();
-
+		
+		//	Set Action for connectButton clicking event
 		connectButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				if (dbmsm.connectToDatabase(accountNameField.getText(), accountPasswordField.getText())) {
+					//	On succesful connect show connection status using effect
 					connectButton.setEffect(effectConnected);
 				} else {
 					Alert alert = new Alert(AlertType.WARNING);
@@ -210,6 +225,7 @@ public class Display extends Application {
 			}
 		});
 
+		//	Set Action for addCustomerButton clicking event
 		addCustomerButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
@@ -228,36 +244,39 @@ public class Display extends Application {
 			}
 		});
 
+		//	Set Action for listCustomersButton clicking event
 		listCustomersButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
+				//	Request Data and pass it to the tableview
 				customers.setItems(dbmsm.getAllCustomers(customersThatPaidCheckbox.isSelected()));
 			}
 		});
 
+		//	Set Action for disconnectButton clicking event
 		disconnectButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				if (dbmsm.disconnectFromDatabase()) {
+					//	on succesful disconnect show connection status using effect
 					connectButton.setEffect(effectDisconnected);
 				}
 			}
 		});
 	}
-
-	private ObservableList<Kunde> getCustomers() {
-		return dbmsm.getAllCustomers(false);
-	}
-
+	
+	
 	private static TextFormatter<String> forceNumbers() {
-		DecimalFormat format = new DecimalFormat("#.0");
+		//	Only allow numbers
+		DecimalFormat format = new DecimalFormat("#");
 		TextFormatter<String> formatter = new TextFormatter<>(c -> {
 			if (c.getControlNewText().isEmpty()) {
 				return c;
 			}
 
 			ParsePosition parsePosition = new ParsePosition(0);
-			Object object = format.parse(c.getControlNewText(), parsePosition);
+			//	Parse given entered text for numbers and remove ',' and '.'
+			Object object = format.parse(c.getControlNewText().replaceAll("[,.]", ""), parsePosition);
 
 			if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
 				return null;
