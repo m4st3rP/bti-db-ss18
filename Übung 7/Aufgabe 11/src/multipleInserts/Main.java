@@ -1,17 +1,25 @@
 package multipleInserts;
 
+import java.sql.SQLException;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
+/**
+ * @author Finn-Frederik Jannsen, Philipp Schwarz
+ * @version 1.0
+ *
+ *	Basic Application to add random Data to our Database
+ */
 public class Main {
-	private static String password;
-	private static String username;
-	private static DBMSManager dbmsm;
 	
 	public static void main(String[] args) {
+		// Creating GUI
+		String password = "";
+		String username = "";
+		DBMSManager dbmsm;
 		dbmsm = new DBMSManager();
 		
 		JPanel panel = new JPanel();
@@ -25,7 +33,7 @@ public class Main {
     	panel.add(passlabel);
     	panel.add(pass);
     	String[] options = new String[]{"OK", "Abbrechen"};
-    	int option = JOptionPane.showOptionDialog(null, panel, "Login-Daten",
+    	int option = JOptionPane.showOptionDialog(null, panel, "Login-Daten:",
     	                         JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,
     	                         null, options, options[1]);
     	
@@ -36,7 +44,7 @@ public class Main {
     	    System.out.println("Username lautet: " + username);
     	}
     	
-    	//	Verbindung herstellen
+    	// Create Connection
     	System.out.println("Es wird versucht eine Verbindung zur Datenbank herzustellen...");
     	if (dbmsm.connectToDatabase(username, password)) {
     		System.out.println("Verbindung erfolgreich hergestellt!");
@@ -45,16 +53,17 @@ public class Main {
     		return;
     	}
     	
-    	//	Daten hinzufügen
+    	// Add Data
     	System.out.println("Es wird versucht, die Datensätze einzufügen...");
-    	if (dbmsm.addDataset()) {
-    		System.out.println("Datensätze erfolgreich eingefügt");
-    	} else {
-    		System.out.println("Konnte Datensätze nicht einfügen");
-    	}
+		try {
+			dbmsm.addDataset();
+		} catch (SQLException e) {
+			System.out.println("Konnte Datensätze nicht einfügen");
+			e.printStackTrace();
+		}
     	
-    	//	Verbindung schließen
+    	// Close Connection
     	System.out.println("Schließe Verbindung zum Server...");
-    	dbmsm.disconnectFromDatabase();
+    	dbmsm.disconnectFromDatabase(); 
 	}
 }

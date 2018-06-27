@@ -12,13 +12,16 @@ WHERE NAME LIKE 'P%';
 
 /*
  * Wir sortieren die Produkte aufsteigend über ihre einzigartige Artikelnummer damit wir sie schneller über ihre Artikelnummer finden können.
+ * Ohne Index dauert das Select Statement 0,467 Sekunden und mit 0,35 Sekunden. 
+ * Der Grund dafür ist, dass das DBMS anhand des Indexes alle Einträge mit Index höher als von dem ersten Eintrag mit Preis > 900 fetchen kann.
+ * Ohne Index würden erst alle Preise gelesen und dann Einträge mit Preis <= 900 ignoriert werden.
  */
-CREATE UNIQUE INDEX artikelnummer_suche
-ON Produkt (Artikelnummer asc);
+CREATE INDEX preis_suche
+ON Produkt (Preis asc);
 
 SELECT *
 FROM Produkt
-WHERE Artikelnummer = 2;
+WHERE Preis > 900;
 
 
 

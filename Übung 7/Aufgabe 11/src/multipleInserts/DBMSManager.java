@@ -3,7 +3,8 @@ package multipleInserts;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
+
+
 import java.sql.*;
 
 /**
@@ -24,7 +25,6 @@ public class DBMSManager {
 		try {
 			Class.forName("oracle.jdbc.OracleDriver");
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		String url = "jdbc:oracle:thin:@ora14.informatik.haw-hamburg.de:1521:inf14";
@@ -48,17 +48,28 @@ public class DBMSManager {
 		return true;
 	}
 	
+	/**
+	 * Adds random data to the database
+	 * @return A boolean if the process finished properly
+	 * @throws SQLException
+	 */
 	public boolean addDataset() throws SQLException {
 		final int NO_INSERTS = 20000;	//	Wie viele Zeilen eingefügt werden sollen
-		String query = "INSERT INTO Tabelle (Col1, Col2) VALUES (?, ?)";
+		String query = "INSERT INTO PRODUKT (ARTIKELNUMMER, NAME, LAGERORT, PREIS, BESTAND) VALUES (?,?,?,?,?)";
 		
 		PreparedStatement preparedStatement;
 		preparedStatement = con.prepareStatement(query);
 		
 		for (int i=0; i < NO_INSERTS; i++) {
-			preparedStatement.setString(1, String.valueOf(Math.random() * i));	//	BSP für zufallszahlen
+			preparedStatement.setInt(1, 6 + i);
 			preparedStatement.setString(2, "Produkt " + i);						//	BSP Namensgenerierung
+			preparedStatement.setString(3, "Lagerhalle " + String.valueOf((int) (Math.random() * i)));						//	BSP Namensgenerierung
+			preparedStatement.setInt(4, (int) (Math.random() * 1000));	//	BSP für zufallszahlen
+			preparedStatement.setInt(5, (int) (Math.random() * 50));	//	BSP für zufallszahlen
 			preparedStatement.executeUpdate();
+			if (i % 1000 == 0) {
+				System.out.println("Es wurden " + i + " Datensätze eingefügt.");
+			}
 		}
 		return true;
 	}
